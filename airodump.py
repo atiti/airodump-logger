@@ -6,7 +6,7 @@
 # http://www.aircrack-ng.org/doku.php?id=airodump-ng
 #
 
-import os, time
+import os, time, traceback
 
 DEBUG=False
 
@@ -64,9 +64,15 @@ class AirodumpProcessor:
 			self.logger.write("Got start Client list\n")
 			return [None,None]	
 
+		if len(line) < 1:
+			return [None,None]
+
 		try:
 			if self.client_list_on == 1 and len(line) > 1:
 				v = line.replace("(not associated)", "(not_associated)").split()
+				if len(v) < 6:
+					return [None, None]
+ 
 				CLIENT = v[1]
 				if not self.client_list.has_key(CLIENT):
 					self.client_list[CLIENT] = {}
@@ -80,6 +86,9 @@ class AirodumpProcessor:
 
 			elif self.ap_list_on == 1 and len(line) > 1:
 				v = line.split()
+				if len(v) < 8:
+					return [None, None]
+
 				AP = v[0]
 				if not self.ap_list.has_key(AP):
 					self.ap_list[AP] = {}
@@ -108,6 +117,7 @@ class AirodumpProcessor:
 
 		except:
 			print "Failed,",line
+			traceback.print_exc()
 
 		return [None, None]
 	def stop(self):
