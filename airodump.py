@@ -8,14 +8,16 @@
 
 import os, time
 
+DEBUG=False
+
 class AirodumpProcessor:
 	# Command to laucnh airodump-ng with: 
 	CMD="airodump-ng --update 1 --berlin 20 mon0 2>&1"
 	# String that resets the terminal
-	REFRESH_STR='\x1b[J\x1b[1;1H\n'
+	#REFRESH_STR='\x1b[J\x1b[1;1H\n'
 	# String used to identify the list of clients
-	CLIENT_LIST_STR=' BSSID              STATION'
-	AP_LIST_STR=' BSSID              PWR'
+	#CLIENT_LIST_STR=' BSSID              STATION'
+	#AP_LIST_STR=' BSSID              PWR'
 	###############################################
 	fd = None
 	ap_list_on = 0
@@ -28,10 +30,20 @@ class AirodumpProcessor:
 
 	def start(self):
 		self.fd = os.popen(self.CMD, "r")
+		if DEBUG: self.logger = open("/logs/dump.log", "a")
 
 	def process(self):	
+		if not self.fd:
+			self.start()
+
 		line = self.fd.readline()
-		if line == self.REFRESH_STR:
+		if not line:
+			return [None,None]
+
+		line = line.replace("\r", "").replace("\n", "").strip()
+
+		if line.startswith("CH "):
+			if DEBUG: self.logger.write("Got start!\n")
 			self.client_list_on = 0
 			self.ap_list_on = 0
 			cl = self.client_list
@@ -40,16 +52,18 @@ class AirodumpProcessor:
 			self.ap_list = {}
 			return [aps, cl]
 
-		elif line.startswith(self.AP_LIST_STR):
+		elif line.find("BSSID") >= 0 and line.find("Beacons") > 0:
 			self.ap_list_on = 1
+			self.client_list_on = 0
+			if DEBUG: self.logger.write("Got start AP list\n")
 			return [None,None]
 
-		elif line.startswith(self.CLIENT_LIST_STR):
+		elif line.find("BSSID") >= 0 and line.find("STATION") > 0:
 			self.client_list_on = 1
 			self.ap_list_on = 0
+			self.logger.write("Got start Client list\n")
 			return [None,None]	
 
-		line = line.strip()
 		try:
 			if self.client_list_on == 1 and len(line) > 1:
 				v = line.replace("(not associated)", "(not_associated)").split()
@@ -64,7 +78,7 @@ class AirodumpProcessor:
 				self.client_list[CLIENT]["lost"] = v[4]
 				self.client_list[CLIENT]["packets"] = v[5]
 
-			if self.ap_list_on == 1 and len(line) > 1:
+			elif self.ap_list_on == 1 and len(line) > 1:
 				v = line.split()
 				AP = v[0]
 				if not self.ap_list.has_key(AP):
@@ -88,6 +102,10 @@ class AirodumpProcessor:
 					self.ap_list[AP]["cipher"] = v[9]
 					self.ap_list[AP]["auth"] = v[10]
 					self.ap_list[AP]["essid"] = v[11]
+
+			else:
+				if DEBUG: print "Not matching anything: |"+line+"|\n"
+
 		except:
 			print "Failed,",line
 

@@ -18,19 +18,28 @@ DEVID=''.join(c for c in socket.gethostname() if c.isdigit())
 def log_client_appeared(k, l):
 #	print "Appeared - ",k["client"]
 	if l:
-		l.info("%s", DEVID+" - Appeared - "+k["client"])
+		try:
+			l.info("%s", DEVID+" - Appeared - "+k["client"])
+		except:
+			pass
 
 def log_client_disappeared(k, l):
 #	print "Disappeared - ",k["client"]
 	if l:
-		l.info("%s", DEVID+" - Disappeared - "+k["client"])
+		try:
+			l.info("%s", DEVID+" - Disappeared - "+k["client"])
+		except:
+			pass
 
 def log_update(clients, l):
 	if l:
 		for k in clients.keys():
 			v = clients[k]	
-			l.info("%s", DEVID+" - "+v["client"]+" - "+str(abs(int(v["pwr"]))))
-
+			try:
+				l.info("%s", DEVID+" - "+v["client"]+" - "+str(abs(int(v["pwr"]))))
+			except:
+				pass
+	
 WORKDIR = "/"
 UMASK = 0
 # The standard I/O file descriptors are redirected to /dev/null by default.
@@ -181,7 +190,7 @@ def createDaemon():
 
 if __name__ == "__main__":
 
-	retCode = createDaemon()
+	#retCode = createDaemon()
 
 	# Create logging dir
 	if not os.path.isdir(LOG_PATH):
@@ -208,26 +217,29 @@ if __name__ == "__main__":
 	prev_clients = {}
 
 	while 1:
-		[aps, clients] = ad.process()
-		if clients:
-			# Trigger logging for disappearing clients
-			for k in prev_clients.keys():
-				if not clients.has_key(k):
-					log_client_disappeared(prev_clients[k], changes_logger)
+		try:
+			[aps, clients] = ad.process()
+			if clients:
+				# Trigger logging for disappearing clients
+				for k in prev_clients.keys():
+					if not clients.has_key(k):
+						log_client_disappeared(prev_clients[k], changes_logger)
 
-			# Trigger logging for appearing clients
-			for k in clients.keys():
-				if not prev_clients.has_key(k):
-					log_client_appeared(clients[k], changes_logger)	
+				# Trigger logging for appearing clients
+				for k in clients.keys():
+					if not prev_clients.has_key(k):
+						log_client_appeared(clients[k], changes_logger)	
 
-			# Trigger logging for updates
-			log_update(clients, update_logger)
+				# Trigger logging for updates
+				log_update(clients, update_logger)
 
-			# TODO: Trigger logging for APs
+				# TODO: Trigger logging for APs
 
-			# Save the current state
-			prev_clients = clients
-			time.sleep(1)
+				# Save the current state
+				prev_clients = clients
+				time.sleep(0.99)
+		except:
+			pass
 
 	# Stop the dumping
 	ad.stop()
