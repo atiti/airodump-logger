@@ -62,6 +62,8 @@ while 1:
 		# Trigger logging for updates
 		log_update(clients, update_logger)
 
+		# TODO: Trigger logging for APs
+
 		# Save the current state
 		prev_clients = clients
 

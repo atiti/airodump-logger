@@ -78,12 +78,12 @@ class AirodumpProcessor:
 			self.ap_list[AP]["ch"] = v[6]
 			self.ap_list[AP]["mb"] = v[7]
 			self.ap_list[AP]["enc"] = v[8]
-			if len(v) == 8:
+			if len(v) == 10:
 				self.ap_list[AP]["essid"] = v[9]
-			elif len(v) == 9:
+			elif len(v) == 11:
 				self.ap_list[AP]["cipher"] = v[9]
 				self.ap_list[AP]["essid"] = v[10]
-			elif len(v) == 10:
+			elif len(v) == 12:
 				self.ap_list[AP]["cipher"] = v[9]
 				self.ap_list[AP]["auth"] = v[10]
 				self.ap_list[AP]["essid"] = v[11]
