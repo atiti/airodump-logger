@@ -10,7 +10,7 @@ import os, time
 
 class AirodumpProcessor:
 	# Command to laucnh airodump-ng with: 
-	CMD="airodump-ng --update 1 --berlin 10 mon0 2>&1"
+	CMD="airodump-ng --update 1 --berlin 20 mon0 2>&1"
 	# String that resets the terminal
 	REFRESH_STR='\x1b[J\x1b[1;1H\n'
 	# String used to identify the list of clients
