@@ -11,22 +11,25 @@ LOG_PATH="/logs/"
 import os, time
 import logging
 import airodump
+import socket
+
+DEVID=''.join(c for c in socket.gethostname() if c.isdigit())
 
 def log_client_appeared(k, l):
 #	print "Appeared - ",k["client"]
 	if l:
-		l.info("%s", "Appeared - "+k["client"])
+		l.info("%s", DEVID+" - Appeared - "+k["client"])
 
 def log_client_disappeared(k, l):
 #	print "Disappeared - ",k["client"]
 	if l:
-		l.info("%s", "Disappeared - "+k["client"])
+		l.info("%s", DEVID+" - Disappeared - "+k["client"])
 
 def log_update(clients, l):
 	if l:
 		for k in clients.keys():
 			v = clients[k]	
-			l.info("%s", v["client"]+" - "+str(abs(int(v["pwr"]))))
+			l.info("%s", DEVID+" - "+v["client"]+" - "+str(abs(int(v["pwr"]))))
 
 WORKDIR = "/"
 UMASK = 0
@@ -224,7 +227,7 @@ if __name__ == "__main__":
 
 			# Save the current state
 			prev_clients = clients
-
+			time.sleep(1)
 
 	# Stop the dumping
 	ad.stop()
