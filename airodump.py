@@ -52,68 +52,28 @@ class AirodumpProcessor:
 			self.ap_list = {}
 			return [aps, cl]
 
-		elif line.find("BSSID") >= 0 and line.find("Beacons") > 0:
-			self.ap_list_on = 1
-			self.client_list_on = 0
-			if DEBUG: self.logger.write("Got start AP list\n")
-			return [None,None]
-
-		elif line.find("BSSID") >= 0 and line.find("STATION") > 0:
-			self.client_list_on = 1
-			self.ap_list_on = 0
-			self.logger.write("Got start Client list\n")
-			return [None,None]	
-
 		if len(line) < 1:
 			return [None,None]
 
 		try:
-			if self.client_list_on == 1 and len(line) > 1:
-				v = line.replace("(not associated)", "(not_associated)").split()
-				if len(v) < 6:
-					return [None, None]
+			v = line.replace("(not associated)", "(not_associated)").split()
+
+			if len(v) < 6:
+				return [None, None]
  
-				CLIENT = v[1]
-				if not self.client_list.has_key(CLIENT):
-					self.client_list[CLIENT] = {}
+			if v[1].find(":") < 0:
+				return [None, None]
 
-				self.client_list[CLIENT]["ap"] = CLIENT
-				self.client_list[CLIENT]["client"] = v[1]
-				self.client_list[CLIENT]["pwr"] = v[2]
-				self.client_list[CLIENT]["rate"] = v[3]
-				self.client_list[CLIENT]["lost"] = v[4]
-				self.client_list[CLIENT]["packets"] = v[5]
+			CLIENT = v[1]
+			if not self.client_list.has_key(CLIENT):
+				self.client_list[CLIENT] = {}
 
-			elif self.ap_list_on == 1 and len(line) > 1:
-				v = line.split()
-				if len(v) < 8:
-					return [None, None]
-
-				AP = v[0]
-				if not self.ap_list.has_key(AP):
-					self.ap_list[AP] = {}
-			
-				self.ap_list[AP]["ap"] = AP
-				self.ap_list[AP]["pwr"] = v[1]
-				self.ap_list[AP]["rxq"] = v[2]
-				self.ap_list[AP]["beacons"] = v[3]
-				self.ap_list[AP]["data"] = v[4]
-				self.ap_list[AP]["pps"] = v[5]
-				self.ap_list[AP]["ch"] = v[6]
-				self.ap_list[AP]["mb"] = v[7]
-				self.ap_list[AP]["enc"] = v[8]
-				if len(v) == 10:
-					self.ap_list[AP]["essid"] = v[9]
-				elif len(v) == 11:
-					self.ap_list[AP]["cipher"] = v[9]
-					self.ap_list[AP]["essid"] = v[10]
-				elif len(v) == 12:
-					self.ap_list[AP]["cipher"] = v[9]
-					self.ap_list[AP]["auth"] = v[10]
-					self.ap_list[AP]["essid"] = v[11]
-
-			else:
-				if DEBUG: print "Not matching anything: |"+line+"|\n"
+			self.client_list[CLIENT]["ap"] = CLIENT
+			self.client_list[CLIENT]["client"] = v[1]
+			self.client_list[CLIENT]["pwr"] = v[2]
+			self.client_list[CLIENT]["rate"] = v[3]
+			self.client_list[CLIENT]["lost"] = v[4]
+			self.client_list[CLIENT]["packets"] = v[5]
 
 		except:
 			print "Failed,",line
