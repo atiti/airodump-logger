@@ -29,16 +29,17 @@ class AirodumpProcessor:
 		pass
 
 	def start(self):
-		#self.fd = os.popen(self.CMD, "r")
 		self.fd = subprocess.Popen(['airodump-ng', '--update', '1', '--berlin', '20', 'mon0'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		print "FD:",self.fd
 		if DEBUG: self.logger = open("/logs/dump.log", "a")
 
 	def process(self):	
-		#if not self.fd:
-		#	self.start()
+		if not self.fd:
+			self.start()
+
 		line = self.fd.stdout.readline()
-		print "Line:",line.encode('ascii', errors='ignore'),
+		if DEBUG: self.logger.write("Line:"+line.encode('ascii', errors='ignore')+"\n")
+
 		if not line:
 			return [None,None]
 
