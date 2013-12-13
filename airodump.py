@@ -6,9 +6,9 @@
 # http://www.aircrack-ng.org/doku.php?id=airodump-ng
 #
 
-import os, time, traceback, subprocess
+import os,sys,time, traceback, subprocess
 
-DEBUG=False
+DEBUG=True
 
 class AirodumpProcessor:
 	# Command to laucnh airodump-ng with: 
@@ -29,9 +29,9 @@ class AirodumpProcessor:
 		pass
 
 	def start(self):
-		self.fd = subprocess.Popen(['airodump-ng', '--update', '1', '--berlin', '20', 'mon0'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		self.fd = subprocess.Popen(['airodump-ng', '--update', '1', '--berlin', '20', 'mon0'], bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		print "FD:",self.fd
-		if DEBUG: self.logger = open("/logs/dump.log", "a")
+		if DEBUG: self.logger = sys.stdout #open("/logs/dump.log", "a")
 
 	def process(self):	
 		if not self.fd:
